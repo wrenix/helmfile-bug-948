@@ -1,0 +1,14 @@
+environments:
+  stage:
+    values:
+    - env/stage.yaml
+  prod:
+    values:
+    - env/prod.yaml
+
+---
+
+helmfiles:
+- path: sub-helmfile.yaml
+  values:
+   - {{ toYaml .Values | nindent 4 }}

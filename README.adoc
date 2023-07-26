@@ -1,0 +1,95 @@
+### Operating system
+
+NixOS
+
+### Helmfile Version
+
+0.155.1
+
+### Helm Version
+
+version.BuildInfo{Version:"v3.12.2", GitCommit:"v3.12.2", GitTreeState:"", GoVersion:"go1.20.6"}
+
+### Bug description
+
+In Documentation describted "Re-using environment state in sub-helmfiles", which i found here:
+
+**Advanced Features** > **Best Practices Guide** > **Re-using environment state in sub-helmfiles**
+
+https://helmfile.readthedocs.io/en/stable/writing-helmfile/#re-using-environment-state-in-sub-helmfiles
+
+Does not work:
+
+### Example helmfile.yaml
+
+#### `helmfile.yaml`
+```yaml
+environments:
+  stage:
+    values:
+    - env/stage.yaml
+  prod:
+    values:
+    - env/prod.yaml
+
+---
+
+helmfiles:
+ - path: sub-helmfile.yaml
+   values:
+    - {{ toYaml .Values | nindent 4 }}
+```
+
+#### `sub-helmfile.yaml`
+```yaml
+releases:
+  - name: "a"
+    chart: "a/a"
+    installed: {{ .Values.enabled }}
+```
+
+#### `env/prod.yaml`
+```yaml
+enabled: true
+```
+
+#### `env/stage.yaml`
+```yaml
+enabled: false
+```
+
+
+### Error message you've seen (if any)
+
+
+
+```
+❯ helmfile -e prod list -f helmfile.yaml      
+in ./helmfile.yaml: failed to read helmfile.yaml: reading document at index 1: yaml: line 8: did not find expected '-' indicator
+
+❯ helmfile -e stage list -f helmfile.yaml
+in ./helmfile.yaml: failed to read helmfile.yaml: reading document at index 1: yaml: line 8: did not find expected '-' indicator
+```
+
+Expected:
+```
+❯ helmfile -e stage list
+NAME	NAMESPACE	ENABLED	INSTALLED	LABELS	CHART	VERSION
+a   	         	true   	false    	      	a/a  	       
+
+❯ helmfile -e prod list
+NAME	NAMESPACE	ENABLED	INSTALLED	LABELS	CHART	VERSION
+a   	         	true   	true     	      	a/a  	       
+```
+
+### Steps to reproduce
+
+helmfile -e prod list
+
+### Working Helmfile Version
+
+no-idea
+
+### Relevant discussion
+
+_No response_

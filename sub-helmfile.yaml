@@ -1,0 +1,4 @@
+releases:
+  - name: "a"
+    chart: "a/a"
+    installed: {{ .Values.enabled }}
